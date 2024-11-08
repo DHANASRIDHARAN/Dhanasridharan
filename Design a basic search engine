@@ -1,0 +1,104 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+// Define a structure to represent a web page
+struct WebPage {
+    char title[100];
+    char content[1000];
+    char url[200];
+    struct WebPage* next;
+};
+
+// Function to insert a web page into the linked list
+void insert(struct WebPage** head, const char* title, const char* content, const char* url) {
+    struct WebPage* newPage = (struct WebPage*)malloc(sizeof(struct WebPage));
+    if (newPage == NULL) {
+        printf("Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(newPage->title, title);
+    strcpy(newPage->content, content);
+    strcpy(newPage->url, url);
+    newPage->next = *head;
+    *head = newPage;
+}
+
+// Function to search for a keyword in the web pages
+void search(struct WebPage* head, const char* keyword) {
+    struct WebPage* current = head;
+    int found = 0;
+    char keywordLowerCase[100];
+    strcpy(keywordLowerCase, keyword);
+    for (int i = 0; keywordLowerCase[i]; i++) {
+        keywordLowerCase[i] = tolower(keywordLowerCase[i]);
+    }
+    while (current != NULL) {
+        char titleLowerCase[100];
+        strcpy(titleLowerCase, current->title);
+        for (int i = 0; titleLowerCase[i]; i++) {
+            titleLowerCase[i] = tolower(titleLowerCase[i]);
+        }
+        char contentLowerCase[1000];
+        strcpy(contentLowerCase, current->content);
+        for (int i = 0; contentLowerCase[i]; i++) {
+            contentLowerCase[i] = tolower(contentLowerCase[i]);
+        }
+        // Search for keyword in title or content
+        if (strstr(titleLowerCase, keywordLowerCase) != NULL || strstr(contentLowerCase, keywordLowerCase) != NULL) {
+            printf("Keyword '%s' found in page '%s': %s\n", keyword, current->title, current->url);
+            found = 1;
+        }
+        current = current->next;
+    }
+    if (!found) {
+        printf("Keyword '%s' not found in any web page.\n", keyword);
+    }
+}
+
+// Function to simulate crawling and indexing of web pages
+void crawlAndIndex(struct WebPage** head) {
+    // Insert predefined web pages
+    insert(head, "OpenAI", "OpenAI is an artificial intelligence research laboratory.", "https://www.openai.com");
+    insert(head, "deeplearning.ai", "Deeplearning.ai offers online courses on deep learning.", "https://www.deeplearning.ai");
+ "https://www.openai.com");
+    insert(head, "deeplearning.ai", "Deeplearning.ai offers online courses on deep learning.", "https://www.deeplearning.ai");
+    insert(head, "TensorFlow", "TensorFlow is a machine learning framework.", "https://www.tensorflow.org");
+    insert(head, "PyTorch", "PyTorch is an open-source machine learning framework.", "https://www.pytorch.org");
+    insert(head, "Microsoft AI", "Microsoft Research's AI group focuses on research and development.", "https://www.microsoft.com");
+    // Insert additional web pages based on different categories
+    insert(head, "Amazon", "Amazon is an e-commerce platform.", "https://www.amazon.com");
+    insert(head, "Wikipedia", "Wikipedia is a free online encyclopedia.", "https://www.wikipedia.org");
+    insert(head, "GitHub", "GitHub is a code hosting platform.", "https://www.github.com");
+    insert(head, "Reddit", "Reddit is a social news aggregation website.", "https://www.reddit.com");
+    insert(head, "Netflix", "Netflix is a streaming service.", "https://www.netflix.com");
+}
+
+int main() {
+    // Create a linked list to store web pages
+    struct WebPage* head = NULL;
+
+    // Simulate crawling and indexing
+    crawlAndIndex(&head);
+
+    // Loop for user searches
+    char query[100];
+    do {
+        printf("\nEnter search keyword (or 'exit' to quit): ");
+        fgets(query, sizeof(query), stdin);
+        query[strcspn(query, "\n")] = '\0'; // Remove trailing newline character
+        if (strcmp(query, "exit") != 0) {
+            search(head, query);
+        }
+    } while (strcmp(query, "exit") != 0);
+
+    // Free memory allocated for web pages
+    while (head != NULL) {
+        struct WebPage* temp = head;
+        head = head->next;
+        free(temp);
+    }
+
+    return 0;
+}
